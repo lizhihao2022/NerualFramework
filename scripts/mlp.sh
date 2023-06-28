@@ -1,0 +1,19 @@
+#!/bin/bash
+python main.py \
+    --model MLP \
+    --layers 3 \
+    --dim 128 \
+    --cuda True \
+    --device 4 \
+    --epochs 500 \
+    --patience 10 \
+    --eval_freq 5 \
+    --batch_size 2048 \
+    --optimizer Adam \
+    --lr 0.001 \
+    --weight_decay 0.001 \
+    --momentum 0.95 \
+    --data_dir ./data/ \
+    --train_ratio 0.6 \
+    --valid_ratio 0.2 \
+    --test_ratio 0.2 \

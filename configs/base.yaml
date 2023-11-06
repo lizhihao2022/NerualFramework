@@ -1,0 +1,37 @@
+model:
+  model: 'MLP'
+
+data:
+  dataset: 'Base'
+  data_path: '../data/'
+  train_ratio: 0.6
+  valid_ratio: 0.2
+  test_ratio: 0.2
+  subset: False
+  subset_ratio: 0.1
+
+train:
+  random_seed: 2020
+  cuda: True
+  device: 5
+  epochs: 1000
+  patience: 10
+  eval_freq: 5
+  batch_size: 100
+  saving_checkpoints: False
+  saving_best: True
+
+optimize:
+  optimizer: 'Adam'
+  lr: 0.001
+  weight_decay: 0.0001
+  momentum: 0.95
+  milestones: [150, 300, 450]
+  gamma: 0.5
+
+log:
+  verbose: True
+  log: True
+  log_dir: './logs'
+  wandb: False
+  wandb_project: ''

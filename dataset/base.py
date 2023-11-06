@@ -13,7 +13,8 @@ class MyDataset:
         valid_ratio=0.2,
         test_ratio=0.2,
         batch_size=128,
-        load_subset=False,
+        subset=False,
+        sub_ratio=0.2,
         ):
         self.batch_size = batch_size
         X, y = None, None
@@ -30,11 +31,11 @@ class MyDataset:
     
     @property
     def valid_loader(self):
-        return DataLoader(self.valid_data, batch_size=self.batch_size)
+        return DataLoader(self.valid_data, batch_size=self.batch_size, shuffle=False)
     
     @property
     def test_loader(self):
-        return DataLoader(self.test_data, batch_size=self.batch_size)
+        return DataLoader(self.test_data, batch_size=self.batch_size, shuffle=False)
 
 
 class MyBase(Dataset):

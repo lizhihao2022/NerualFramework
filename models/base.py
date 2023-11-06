@@ -2,9 +2,9 @@ import torch.nn as nn
 import torch
 
 
-class MLP(nn.Module):
+class BaseModel(nn.Module):
     def __init__(self, args):
-        super(MLP, self).__init__()
+        super(BaseModel, self).__init__()
         self.layers = args.layers
         self.embedding_dim = args.dim
         

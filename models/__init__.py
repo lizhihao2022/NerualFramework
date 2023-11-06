@@ -1,6 +1,6 @@
-from .mlp import MLP
+from .base import BaseModel
 
 
 ALL_MODELS = {
-    "MLP": MLP,
+    "BaseModel": BaseModel,
 }

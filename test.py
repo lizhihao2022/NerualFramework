@@ -1,6 +1,6 @@
 from utils import set_seed, set_device, train, evaluate
-from models import MLP
-from dataset import MyDataset
+from models import BaseModel
+from datasets import MyDataset
 from config import parser
 import torch
 
@@ -15,7 +15,7 @@ set_seed(args.random_seed)
 dataset = MyDataset(args.data_dir, args.train_ratio, args.valid_ratio, args.test_ratio, args.batch_size, args.subset)
 train_loader, valid_loader, test_loader = dataset.train_loader, dataset.valid_loader, dataset.test_loader    
 
-model = MLP(args)
+model = BaseModel(args)
 criterion = torch.nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 

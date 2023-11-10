@@ -1,5 +1,5 @@
 model:
-  model: 'MLP'
+  model_name: 'MLP'
 
 data:
   dataset: 'Base'

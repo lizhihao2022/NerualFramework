@@ -7,9 +7,10 @@ import wandb
 
 
 class BaseTrainer:
-    def __init__(self, model, device, epochs, eval_freq=5, patience=-1,
+    def __init__(self, model_name, device, epochs, eval_freq=5, patience=-1,
                  verbose=False, wandb_log=False, logger=False, 
                  saving_best=True, saving_checkpoints=False, saving_path=None):
+        self.model_name = model_name
         self.device = device
         self.epochs = epochs
         self.eval_freq = eval_freq
@@ -23,7 +24,7 @@ class BaseTrainer:
             self.logger = logging.info if logger else print
 
     def process(self, model, train_loader, valid_loader, test_loader, optimizer, 
-                criterion, eval_metrics, regularizer=None, scheduler=None, **kwargs):
+                criterion, regularizer=None, scheduler=None, **kwargs):
         if self.verbose:
             self.logger("Start training")
             self.logger("Train dataset size: {}".format(len(train_loader.dataset)))
@@ -42,7 +43,7 @@ class BaseTrainer:
                 wandb.log(train_loss_record.to_dict())
                 
             if (epoch + 1) % self.eval_freq == 0:
-                valid_loss_record = self.evaluate(model, valid_loader, criterion, eval_metrics, split="valid")
+                valid_loss_record = self.evaluate(model, valid_loader, criterion, split="valid")
                 if self.verbose:
                     self.logger("Epoch {} | {}".format(epoch, valid_loss_record))
                 valid_metrics = valid_loss_record.to_dict()
@@ -75,9 +76,9 @@ class BaseTrainer:
             self.logger("Load best models at epoch {} from {}".format(best_epoch, self.saving_path))        
         model.cuda()
         
-        valid_loss_record = self.evaluate(model, valid_loader, criterion, eval_metrics, split="valid")
+        valid_loss_record = self.evaluate(model, valid_loader, criterion, split="valid")
         self.logger("Valid metrics: {}".format(valid_loss_record))
-        test_loss_record = self.evaluate(model, test_loader, criterion, eval_metrics, split="test")
+        test_loss_record = self.evaluate(model, test_loader, criterion, split="test")
         self.logger("Test metrics: {}".format(test_loss_record))
         
         if self.wandb:

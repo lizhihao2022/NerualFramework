@@ -28,4 +28,7 @@ from .your_trainer import YourTrainer, your_procedure
 We provide a `BaseTrainer` class and a `base_procedure` method in `trainers/base.py` for you to inherit. 
 
 ### Config
-Write your config in directory `configs/` and write script in directory `scripts/` to run your model.
+Write your config in directory `configs/`.
+```shell
+python main.py --config configs/your_config.yaml
+```

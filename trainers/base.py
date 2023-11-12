@@ -8,8 +8,8 @@ import wandb
 
 class BaseTrainer:
     def __init__(self, model_name, device, epochs, eval_freq=5, patience=-1,
-                 verbose=False, wandb_log=False, logger=False, 
-                 saving_best=True, saving_checkpoints=False, saving_path=None):
+                 verbose=False, wandb_log=False, logger=False, saving_best=True, 
+                 saving_checkpoint=False, checkpoint_freq=100, saving_path=None):
         self.model_name = model_name
         self.device = device
         self.epochs = epochs
@@ -18,7 +18,8 @@ class BaseTrainer:
         self.wandb = wandb_log
         self.verbose = verbose
         self.saving_best = saving_best
-        self.saving_checkpoints = saving_checkpoints
+        self.saving_checkpoint = saving_checkpoint
+        self.checkpoint_freq = checkpoint_freq
         self.saving_path = saving_path
         if verbose:
             self.logger = logging.info if logger else print
@@ -41,6 +42,18 @@ class BaseTrainer:
                 self.logger("Epoch {} | {} | lr: {:.6f}".format(epoch, train_loss_record, optimizer.param_groups[0]["lr"]))
             if self.wandb:
                 wandb.log(train_loss_record.to_dict())
+            
+            if self.saving_checkpoint and (epoch + 1) % self.checkpoint_freq == 0:
+                torch.save({
+                    'epoch': epoch,
+                    'model_state_dict': model.cpu().state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'scheduler_state_dict': scheduler.state_dict(),
+                    'train_loss_record': train_loss_record.to_dict(),
+                    }, os.path.join(self.saving_path, "checkpoint_{}.pth".format(epoch)))
+                model.cuda()
+                if self.verbose:
+                    self.logger("Epoch {} | save checkpoint in {}".format(epoch, self.saving_path))
                 
             if (epoch + 1) % self.eval_freq == 0:
                 valid_loss_record = self.evaluate(model, valid_loader, criterion, split="valid")

@@ -17,9 +17,13 @@ train:
   epochs: 1000
   patience: 10
   eval_freq: 5
-  batch_size: 100
-  saving_checkpoints: False
+  train_batchsize: 100
   saving_best: True
+  saving_checkpoint: True
+  checkpoint_freq: 100
+
+eval:
+  eval_batchsize: 100
 
 optimize:
   optimizer: 'Adam'

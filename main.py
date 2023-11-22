@@ -22,7 +22,10 @@ def main():
     set_device(args['cuda'], args['device'])
     set_seed(args['random_seed'])
     
-    base_procedure(args)
+    if args['dataset'] == 'Base':
+        base_procedure(args)
+    else:
+        raise NotImplementedError
     
 
 if __name__ == "__main__":

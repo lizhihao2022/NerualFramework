@@ -16,6 +16,8 @@ class MyDataset:
         eval_batchsize=32,
         subset=False,
         sub_ratio=0.2,
+        num_workers=0,
+        pin_memory=False,
         ):
         self.train_batchsize = train_batchsize
         self.eval_batchsize = eval_batchsize
@@ -32,15 +34,15 @@ class MyDataset:
     
     @property
     def train_loader(self):
-        return DataLoader(self.train_data, batch_size=self.train_batchsize, shuffle=True)
+        return DataLoader(self.train_data, batch_size=self.train_batchsize, shuffle=True, num_workers=self.num_workers, pin_memory=self.pin_memory)
     
     @property
     def valid_loader(self):
-        return DataLoader(self.valid_data, batch_size=self.eval_batchsize, shuffle=False)
+        return DataLoader(self.valid_data, batch_size=self.eval_batchsize, shuffle=False, num_workers=self.num_workers, pin_memory=self.pin_memory)
     
     @property
     def test_loader(self):
-        return DataLoader(self.test_data, batch_size=self.eval_batchsize, shuffle=False)
+        return DataLoader(self.test_data, batch_size=self.eval_batchsize, shuffle=False, num_workers=self.num_workers, pin_memory=self.pin_memory)
 
 
 class MyBase(Dataset):

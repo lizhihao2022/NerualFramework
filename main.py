@@ -10,9 +10,9 @@ def main():
     args = load_config(args)
     
     if args['log'] is True:
-        saving_path, saving_name = set_up_logger(args["model"], args["dataset"], args['log_dir'])
+        saving_path, saving_name = set_up_logger(args["model_name"], args["dataset"], args['log_dir'])
     elif args.save_best is True or args.save_check_points is True:
-        saving_path, saving_name = get_dir_path(args["model"], args["dataset"], args['log_dir'])
+        saving_path, saving_name = get_dir_path(args["model_name"], args["dataset"], args['log_dir'])
     else:
         saving_path, saving_name = None, None
     
@@ -26,7 +26,7 @@ def main():
         base_procedure(args)
     else:
         raise NotImplementedError
-    
+
 
 if __name__ == "__main__":
     main()

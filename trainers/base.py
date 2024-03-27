@@ -42,48 +42,50 @@ class BaseTrainer:
         best_metrics = None
         counter = 0
         
-        for epoch in range(self.epochs):
-            train_loss_record = self.train(model, train_loader, optimizer, criterion, scheduler, regularizer)
-            if self.verbose:
-                self.logger("Epoch {} | {} | lr: {:.6f}".format(epoch, train_loss_record, optimizer.param_groups[0]["lr"]))
-            if self.wandb:
-                wandb.log(train_loss_record.to_dict())
-            
-            if self.saving_checkpoint and (epoch + 1) % self.checkpoint_freq == 0:
-                torch.save({
-                    'epoch': epoch,
-                    'model_state_dict': model.cpu().state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'scheduler_state_dict': scheduler.state_dict(),
-                    'train_loss_record': train_loss_record.to_dict(),
-                    }, os.path.join(self.saving_path, "checkpoint_{}.pth".format(epoch)))
-                model.cuda()
+        with tqdm(total=self.epochs) as bar:
+            for epoch in range(self.epochs):
+                train_loss_record = self.train(model, train_loader, optimizer, criterion, scheduler, regularizer)
                 if self.verbose:
-                    self.logger("Epoch {} | save checkpoint in {}".format(epoch, self.saving_path))
-                
-            if (epoch + 1) % self.eval_freq == 0:
-                valid_loss_record = self.evaluate(model, valid_loader, criterion, split="valid")
-                if self.verbose:
-                    self.logger("Epoch {} | {}".format(epoch, valid_loss_record))
-                valid_metrics = valid_loss_record.to_dict()
-                
+                    self.logger("Epoch {} | {} | lr: {:.6f}".format(epoch, train_loss_record, optimizer.param_groups[0]["lr"]))
                 if self.wandb:
-                    wandb.log(valid_loss_record.to_dict())
+                    wandb.log(train_loss_record.to_dict())
                 
-                if not best_metrics or valid_metrics['valid_loss'] < best_metrics['valid_loss']:
-                    counter = 0
-                    best_epoch = epoch
-                    best_metrics = valid_metrics
-                    torch.save(model.cpu().state_dict(), os.path.join(self.saving_path, "best_model.pth"))
+                if self.saving_checkpoint and (epoch + 1) % self.checkpoint_freq == 0:
+                    torch.save({
+                        'epoch': epoch,
+                        'model_state_dict': model.cpu().state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        'scheduler_state_dict': scheduler.state_dict(),
+                        'train_loss_record': train_loss_record.to_dict(),
+                        }, os.path.join(self.saving_path, "checkpoint_{}.pth".format(epoch)))
                     model.cuda()
                     if self.verbose:
-                        self.logger("Epoch {} | save best models in {}".format(epoch, self.saving_path))
-                elif self.patience != -1:
-                    counter += 1
-                    if counter >= self.patience:
+                        self.logger("Epoch {} | save checkpoint in {}".format(epoch, self.saving_path))
+                    
+                if (epoch + 1) % self.eval_freq == 0:
+                    valid_loss_record = self.evaluate(model, valid_loader, criterion, split="valid")
+                    if self.verbose:
+                        self.logger("Epoch {} | {}".format(epoch, valid_loss_record))
+                    valid_metrics = valid_loss_record.to_dict()
+                    
+                    if self.wandb:
+                        wandb.log(valid_loss_record.to_dict())
+                    
+                    if not best_metrics or valid_metrics['valid_loss'] < best_metrics['valid_loss']:
+                        counter = 0
+                        best_epoch = epoch
+                        best_metrics = valid_metrics
+                        torch.save(model.cpu().state_dict(), os.path.join(self.saving_path, "best_model.pth"))
+                        model.cuda()
                         if self.verbose:
-                            self.logger("Early stop at epoch {}".format(epoch))
-                        break
+                            self.logger("Epoch {} | save best models in {}".format(epoch, self.saving_path))
+                    elif self.patience != -1:
+                        counter += 1
+                        if counter >= self.patience:
+                            if self.verbose:
+                                self.logger("Early stop at epoch {}".format(epoch))
+                            break
+                bar.update(1)
 
         self.logger("Optimization Finished!")
         
@@ -108,24 +110,21 @@ class BaseTrainer:
         loss_record = LossRecord(["train_loss"])
         model.cuda()
         model.train()
-        with tqdm(total=len(train_loader)) as bar:
-            for x, y in train_loader:
-                x = x.to('cuda')
-                y = y.to('cuda')
-                # compute loss
-                y_pred = model(x).reshape(y.shape)
-                data_loss = criterion(y_pred, y)
-                loss = data_loss
-                # compute gradient
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-                # record loss and update progress bar
-                loss_record.update({"train_loss": loss.item()})
-                bar.update(1)
-                bar.set_postfix_str("train loss: {:.4f}".format(loss.item()))
-            if scheduler is not None:
-                scheduler.step()
+        for x, y in train_loader:
+            x = x.to('cuda')
+            y = y.to('cuda')
+            # compute loss
+            y_pred = model(x).reshape(y.shape)
+            data_loss = criterion(y_pred, y)
+            loss = data_loss
+            # compute gradient
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            # record loss and update progress bar
+            loss_record.update({"train_loss": loss.item()})
+        if scheduler is not None:
+            scheduler.step()
         return loss_record
     
     def evaluate(self, model, eval_loader, criterion, split="valid", **kwargs):

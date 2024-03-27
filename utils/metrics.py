@@ -33,7 +33,7 @@ class AverageRecord(object):
 
     def update(self, val, n=1):
         self.val = val
-        self.sum += val * n
+        self.sum += val
         self.count += n
         self.avg = self.sum / self.count
 
@@ -79,9 +79,9 @@ class LossRecord:
         self.loss_list = loss_list
         self.loss_dict = {loss: AverageRecord() for loss in self.loss_list}
     
-    def update(self, update_dict):
+    def update(self, update_dict, n):
         for key, value in update_dict.items():
-            self.loss_dict[key].update(value)
+            self.loss_dict[key].update(value, n)
     
     def format_metrics(self):
         result = ""

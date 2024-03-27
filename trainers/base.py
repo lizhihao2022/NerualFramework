@@ -122,7 +122,7 @@ class BaseTrainer:
             loss.backward()
             optimizer.step()
             # record loss and update progress bar
-            loss_record.update({"train_loss": loss.item()})
+            loss_record.update({"train_loss": loss.sum().item()}, n=y.shape[0])
         if scheduler is not None:
             scheduler.step()
         return loss_record
@@ -138,7 +138,7 @@ class BaseTrainer:
                 y_pred = model(x).reshape(y.shape)
                 data_loss = criterion(y_pred, y)
                 loss = data_loss
-                loss_record.update({"{}_loss".format(split): loss.item()})
+                loss_record.update({"{}_loss".format(split): loss.sum().item()}, n=y.shape[0])
         return loss_record
 
 

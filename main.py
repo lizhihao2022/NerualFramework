@@ -4,7 +4,6 @@ from trainers import base_procedure
 
 
 def main():
-    # initial
     args = parser.parse_args()
     args = vars(args)
     args = load_config(args)

@@ -9,21 +9,19 @@ data:
   test_ratio: 0.2
   subset: False
   subset_ratio: 0.1
+  train_batchsize: 100
+  eval_batchsize: 100
 
 train:
-  random_seed: 2020
+  random_seed: 42
   cuda: True
-  device: 5
+  device: 0
   epochs: 1000
   patience: 10
   eval_freq: 5
-  train_batchsize: 100
   saving_best: True
   saving_checkpoint: True
-  checkpoint_freq: 100
-
-eval:
-  eval_batchsize: 100
+  checkpoint_freq: 100  
 
 optimize:
   optimizer: 'Adam'
